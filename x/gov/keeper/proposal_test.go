@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 
@@ -20,17 +21,20 @@ import (
 // TODO(tip): remove this
 func (suite *KeeperTestSuite) TestGetSetProposal() {
 	testCases := map[string]struct {
-		expedited bool
+		proposalType v1.ProposalType
 	}{
-		"regular proposal": {},
+		"unspecified proposal type": {},
+		"regular proposal": {
+			proposalType: v1.ProposalType_PROPOSAL_TYPE_STANDARD,
+		},
 		"expedited proposal": {
-			expedited: true,
+			proposalType: v1.ProposalType_PROPOSAL_TYPE_EXPEDITED,
 		},
 	}
 
 	for _, tc := range testCases {
 		tp := TestProposal
-		proposal, err := suite.govKeeper.SubmitProposal(suite.ctx, tp, "", "test", "summary", suite.addrs[0], tc.expedited)
+		proposal, err := suite.govKeeper.SubmitProposal(suite.ctx, tp, "", "test", "summary", suite.addrs[0], tc.proposalType)
 		suite.Require().NoError(err)
 		proposalID := proposal.Id
 		err = suite.govKeeper.SetProposal(suite.ctx, proposal)
@@ -45,11 +49,14 @@ func (suite *KeeperTestSuite) TestGetSetProposal() {
 // TODO(tip): remove this
 func (suite *KeeperTestSuite) TestDeleteProposal() {
 	testCases := map[string]struct {
-		expedited bool
+		proposalType v1.ProposalType
 	}{
-		"regular proposal": {},
+		"unspecified proposal type": {},
+		"regular proposal": {
+			proposalType: v1.ProposalType_PROPOSAL_TYPE_STANDARD,
+		},
 		"expedited proposal": {
-			expedited: true,
+			proposalType: v1.ProposalType_PROPOSAL_TYPE_EXPEDITED,
 		},
 	}
 
@@ -58,7 +65,7 @@ func (suite *KeeperTestSuite) TestDeleteProposal() {
 		suite.Require().ErrorIs(suite.govKeeper.DeleteProposal(suite.ctx, 10), collections.ErrNotFound)
 
 		tp := TestProposal
-		proposal, err := suite.govKeeper.SubmitProposal(suite.ctx, tp, "", "test", "summary", suite.addrs[0], tc.expedited)
+		proposal, err := suite.govKeeper.SubmitProposal(suite.ctx, tp, "", "test", "summary", suite.addrs[0], tc.proposalType)
 		suite.Require().NoError(err)
 		proposalID := proposal.Id
 		err = suite.govKeeper.SetProposal(suite.ctx, proposal)
@@ -73,16 +80,17 @@ func (suite *KeeperTestSuite) TestDeleteProposal() {
 
 func (suite *KeeperTestSuite) TestActivateVotingPeriod() {
 	testCases := []struct {
-		name      string
-		expedited bool
+		name         string
+		proposalType v1.ProposalType
 	}{
-		{name: "regular proposal"},
-		{name: "expedited proposal", expedited: true},
+		{name: "unspecified proposal type"},
+		{name: "regular proposal", proposalType: v1.ProposalType_PROPOSAL_TYPE_STANDARD},
+		{name: "expedited proposal", proposalType: v1.ProposalType_PROPOSAL_TYPE_EXPEDITED},
 	}
 
 	for _, tc := range testCases {
 		tp := TestProposal
-		proposal, err := suite.govKeeper.SubmitProposal(suite.ctx, tp, "", "test", "summary", suite.addrs[0], tc.expedited)
+		proposal, err := suite.govKeeper.SubmitProposal(suite.ctx, tp, "", "test", "summary", suite.addrs[0], tc.proposalType)
 		suite.Require().NoError(err)
 
 		suite.Require().Nil(proposal.VotingStartTime)
@@ -103,17 +111,18 @@ func (suite *KeeperTestSuite) TestActivateVotingPeriod() {
 
 func (suite *KeeperTestSuite) TestDeleteProposalInVotingPeriod() {
 	testCases := []struct {
-		name      string
-		expedited bool
+		name         string
+		proposalType v1.ProposalType
 	}{
-		{name: "regular proposal"},
-		{name: "expedited proposal", expedited: true},
+		{name: "unspecified proposal type"},
+		{name: "regular proposal", proposalType: v1.ProposalType_PROPOSAL_TYPE_STANDARD},
+		{name: "expedited proposal", proposalType: v1.ProposalType_PROPOSAL_TYPE_EXPEDITED},
 	}
 
 	for _, tc := range testCases {
 		suite.reset()
 		tp := TestProposal
-		proposal, err := suite.govKeeper.SubmitProposal(suite.ctx, tp, "", "test", "summary", suite.addrs[0], tc.expedited)
+		proposal, err := suite.govKeeper.SubmitProposal(suite.ctx, tp, "", "test", "summary", suite.addrs[0], tc.proposalType)
 		suite.Require().NoError(err)
 		suite.Require().Nil(proposal.VotingStartTime)
 
@@ -150,31 +159,29 @@ func (suite *KeeperTestSuite) TestSubmitProposal() {
 	tp := v1beta1.TextProposal{Title: "title", Description: "description"}
 
 	testCases := []struct {
-		content     v1beta1.Content
-		authority   string
-		metadata    string
-		expedited   bool
-		expectedErr error
+		content      v1beta1.Content
+		authority    string
+		metadata     string
+		proposalType v1.ProposalType
+		expectedErr  error
 	}{
-		{&tp, govAcct, "", false, nil},
-		{&tp, govAcct, "", true, nil},
+		{&tp, govAcct, "", v1.ProposalType_PROPOSAL_TYPE_STANDARD, nil},
+		{&tp, govAcct, "", v1.ProposalType_PROPOSAL_TYPE_EXPEDITED, nil},
 		// Keeper does not check the validity of title and description, no error
-		{&v1beta1.TextProposal{Title: "", Description: "description"}, govAcct, "", false, nil},
-		{&v1beta1.TextProposal{Title: strings.Repeat("1234567890", 100), Description: "description"}, govAcct, "", false, nil},
-		{&v1beta1.TextProposal{Title: "title", Description: ""}, govAcct, "", false, nil},
-		{&v1beta1.TextProposal{Title: "title", Description: strings.Repeat("1234567890", 1000)}, govAcct, "", true, nil},
-		// error when metadata is too long (>10000)
-		{&tp, govAcct, strings.Repeat("a", 100001), true, types.ErrMetadataTooLong},
+		{&v1beta1.TextProposal{Title: "", Description: "description"}, govAcct, "", v1.ProposalType_PROPOSAL_TYPE_STANDARD, nil},
+		{&v1beta1.TextProposal{Title: strings.Repeat("1234567890", 100), Description: "description"}, govAcct, "", v1.ProposalType_PROPOSAL_TYPE_STANDARD, nil},
+		{&v1beta1.TextProposal{Title: "title", Description: ""}, govAcct, "", v1.ProposalType_PROPOSAL_TYPE_STANDARD, nil},
+		{&v1beta1.TextProposal{Title: "title", Description: strings.Repeat("1234567890", 1000)}, govAcct, "", v1.ProposalType_PROPOSAL_TYPE_EXPEDITED, nil},
 		// error when signer is not gov acct
-		{&tp, randomAddr.String(), "", false, types.ErrInvalidSigner},
+		{&tp, randomAddr.String(), "", v1.ProposalType_PROPOSAL_TYPE_STANDARD, types.ErrInvalidSigner},
 		// error only when invalid route
-		{&invalidProposalRoute{}, govAcct, "", false, types.ErrNoProposalHandlerExists},
+		{&invalidProposalRoute{}, govAcct, "", v1.ProposalType_PROPOSAL_TYPE_STANDARD, types.ErrNoProposalHandlerExists},
 	}
 
 	for i, tc := range testCases {
 		prop, err := v1.NewLegacyContent(tc.content, tc.authority)
 		suite.Require().NoError(err)
-		_, err = suite.govKeeper.SubmitProposal(suite.ctx, []sdk.Msg{prop}, tc.metadata, "title", "", suite.addrs[0], tc.expedited)
+		_, err = suite.govKeeper.SubmitProposal(suite.ctx, []sdk.Msg{prop}, tc.metadata, "title", "", suite.addrs[0], tc.proposalType)
 		suite.Require().True(errors.Is(tc.expectedErr, err), "tc #%d; got: %v, expected: %v", i, err, tc.expectedErr)
 	}
 }
@@ -184,16 +191,16 @@ func (suite *KeeperTestSuite) TestCancelProposal() {
 	tp := v1beta1.TextProposal{Title: "title", Description: "description"}
 	prop, err := v1.NewLegacyContent(&tp, govAcct)
 	suite.Require().NoError(err)
-	proposal, err := suite.govKeeper.SubmitProposal(suite.ctx, []sdk.Msg{prop}, "", "title", "summary", suite.addrs[0], false)
+	proposal, err := suite.govKeeper.SubmitProposal(suite.ctx, []sdk.Msg{prop}, "", "title", "summary", suite.addrs[0], v1.ProposalType_PROPOSAL_TYPE_STANDARD)
 	suite.Require().NoError(err)
 	proposalID := proposal.Id
 
-	proposal2, err := suite.govKeeper.SubmitProposal(suite.ctx, []sdk.Msg{prop}, "", "title", "summary", suite.addrs[1], true)
+	proposal2, err := suite.govKeeper.SubmitProposal(suite.ctx, []sdk.Msg{prop}, "", "title", "summary", suite.addrs[1], v1.ProposalType_PROPOSAL_TYPE_EXPEDITED)
 	suite.Require().NoError(err)
 	proposal2ID := proposal2.Id
 
 	// proposal3 is only used to check the votes for proposals which doesn't go through `CancelProposal` are still present in state
-	proposal3, err := suite.govKeeper.SubmitProposal(suite.ctx, []sdk.Msg{prop}, "", "title", "summary", suite.addrs[2], false)
+	proposal3, err := suite.govKeeper.SubmitProposal(suite.ctx, []sdk.Msg{prop}, "", "title", "summary", suite.addrs[2], v1.ProposalType_PROPOSAL_TYPE_STANDARD)
 	suite.Require().NoError(err)
 	proposal3ID := proposal3.Id
 
@@ -210,32 +217,32 @@ func (suite *KeeperTestSuite) TestCancelProposal() {
 	suite.Require().NoError(err)
 
 	testCases := []struct {
-		name        string
-		malleate    func() (proposalID uint64, proposer string)
-		proposalID  uint64
-		proposer    string
-		expectedErr bool
+		name           string
+		malleate       func() (proposalID uint64, proposer string)
+		proposalID     uint64
+		proposer       string
+		expectedErrMsg string
 	}{
 		{
 			name: "without proposer",
 			malleate: func() (uint64, string) {
-				return 1, ""
+				return proposalID, ""
 			},
-			expectedErr: true,
+			expectedErrMsg: "invalid proposer",
 		},
 		{
 			name: "invalid proposal id",
 			malleate: func() (uint64, string) {
-				return 1, suite.addrs[1].String()
+				return 10, suite.addrs[1].String()
 			},
-			expectedErr: true,
+			expectedErrMsg: "proposal 10 doesn't exist",
 		},
 		{
 			name: "valid proposalID but invalid proposer",
 			malleate: func() (uint64, string) {
 				return proposalID, suite.addrs[1].String()
 			},
-			expectedErr: true,
+			expectedErrMsg: "invalid proposer",
 		},
 		{
 			name: "valid proposalID but invalid proposal which has already passed",
@@ -249,14 +256,32 @@ func (suite *KeeperTestSuite) TestCancelProposal() {
 				suite.Require().NoError(err)
 				return proposal2ID, suite.addrs[1].String()
 			},
-			expectedErr: true,
+			expectedErrMsg: "proposal should be in the deposit or voting period",
+		},
+		{
+			name: "proposal canceled too late",
+			malleate: func() (uint64, string) {
+				suite.Require().NoError(suite.govKeeper.ActivateVotingPeriod(suite.ctx, proposal2))
+
+				proposal2, err = suite.govKeeper.Proposals.Get(suite.ctx, proposal2.Id)
+				suite.Require().Nil(err)
+
+				headerInfo := suite.ctx.HeaderInfo()
+				// try to cancel 1min before the end of the voting period
+				// this should fail, as we allow to cancel proposal (by default) up to 1/2 of the voting period
+				headerInfo.Time = proposal2.VotingEndTime.Add(-1 * time.Minute)
+				suite.ctx = suite.ctx.WithHeaderInfo(headerInfo)
+
+				suite.Require().NoError(err)
+				return proposal2ID, suite.addrs[1].String()
+			},
+			expectedErrMsg: "too late",
 		},
 		{
 			name: "valid proposer and proposal id",
 			malleate: func() (uint64, string) {
 				return proposalID, suite.addrs[0].String()
 			},
-			expectedErr: false,
 		},
 		{
 			name: "valid case with deletion of votes",
@@ -277,7 +302,6 @@ func (suite *KeeperTestSuite) TestCancelProposal() {
 
 				return proposalID, suite.addrs[0].String()
 			},
-			expectedErr: false,
 		},
 	}
 
@@ -285,8 +309,8 @@ func (suite *KeeperTestSuite) TestCancelProposal() {
 		suite.Run(tc.name, func() {
 			pID, proposer := tc.malleate()
 			err = suite.govKeeper.CancelProposal(suite.ctx, pID, proposer)
-			if tc.expectedErr {
-				suite.Require().Error(err)
+			if tc.expectedErrMsg != "" {
+				suite.Require().ErrorContains(err, tc.expectedErrMsg)
 			} else {
 				suite.Require().NoError(err)
 			}
