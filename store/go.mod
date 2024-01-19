@@ -4,7 +4,7 @@ go 1.21
 
 require (
 	cosmossdk.io/core v0.12.0
-	cosmossdk.io/errors v1.0.0
+	cosmossdk.io/errors v1.0.1
 	cosmossdk.io/log v1.2.1
 	github.com/cockroachdb/errors v1.11.1
 	github.com/cockroachdb/pebble v1.0.0
@@ -14,7 +14,7 @@ require (
 	github.com/cosmos/iavl v1.0.0
 	github.com/cosmos/ics23/go v0.10.0
 	github.com/hashicorp/go-metrics v0.5.3
-	github.com/linxGnu/grocksdb v1.8.10
+	github.com/linxGnu/grocksdb v1.8.11
 	github.com/mattn/go-sqlite3 v1.14.19
 	github.com/stretchr/testify v1.8.4
 	github.com/tidwall/btree v1.7.0
