@@ -4,7 +4,7 @@ go 1.21
 
 require (
 	github.com/cosmos/cosmos-sdk v0.50.0-beta.0
-	github.com/creachadair/atomicfile v0.3.2
+	github.com/creachadair/atomicfile v0.3.3
 	github.com/creachadair/tomledit v0.0.25
 	github.com/pelletier/go-toml/v2 v2.1.1
 	github.com/spf13/cobra v1.8.0
@@ -56,7 +56,7 @@ require (
 	github.com/dgraph-io/ristretto v0.1.1 // indirect
 	github.com/dgryski/go-farm v0.0.0-20200201041132-a6ae2369ad13 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
-	github.com/dvsekhvalnov/jose2go v1.5.0 // indirect
+	github.com/dvsekhvalnov/jose2go v1.6.0 // indirect
 	github.com/emicklei/dot v1.6.0 // indirect
 	github.com/fatih/color v1.15.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
