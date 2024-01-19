@@ -10,6 +10,7 @@ import (
 	cryptoenc "github.com/cometbft/cometbft/crypto/encoding"
 	cmtprotocrypto "github.com/cometbft/cometbft/proto/tendermint/crypto"
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	cmttypes "github.com/cometbft/cometbft/types"
 	protoio "github.com/cosmos/gogoproto/io"
 	"github.com/cosmos/gogoproto/proto"
 
@@ -71,6 +72,7 @@ func ValidateVoteExtensions(
 		sumVP int64
 	)
 
+	cache := make(map[string]struct{})
 	for _, vote := range extCommit.Votes {
 		totalVP += vote.Validator.Power
 
@@ -95,7 +97,13 @@ func ValidateVoteExtensions(
 			return fmt.Errorf("vote extensions enabled; received empty vote extension signature at height %d", currentHeight)
 		}
 
+		// Ensure that the validator has not already submitted a vote extension.
 		valConsAddr := sdk.ConsAddress(vote.Validator.Address)
+		if _, ok := cache[valConsAddr.String()]; ok {
+			return fmt.Errorf("duplicate validator; validator %s has already submitted a vote extension", valConsAddr.String())
+		}
+		cache[valConsAddr.String()] = struct{}{}
+
 		pubKeyProto, err := valStore.GetPubKeyByConsAddr(ctx, valConsAddr)
 		if err != nil {
 			return fmt.Errorf("failed to get validator %X public key: %w", valConsAddr, err)
@@ -368,7 +376,7 @@ func (ts *defaultTxSelector) Clear() {
 }
 
 func (ts *defaultTxSelector) SelectTxForProposal(_ context.Context, maxTxBytes, maxBlockGas uint64, memTx sdk.Tx, txBz []byte) bool {
-	txSize := uint64(len(txBz))
+	txSize := uint64(cmttypes.ComputeProtoSizeForTxs([]cmttypes.Tx{txBz}))
 
 	var txGasLimit uint64
 	if memTx != nil {

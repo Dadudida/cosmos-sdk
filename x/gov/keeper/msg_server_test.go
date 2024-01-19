@@ -48,10 +48,10 @@ func (suite *KeeperTestSuite) TestMsgSubmitProposal() {
 					[]sdk.Msg{bankMsg},
 					initialDeposit,
 					"",
-					strings.Repeat("1", 300),
+					strings.Repeat("1", 100),
 					"Proposal",
 					"description of proposal",
-					false,
+					v1.ProposalType_PROPOSAL_TYPE_STANDARD,
 				)
 			},
 			expErr:    true,
@@ -66,7 +66,7 @@ func (suite *KeeperTestSuite) TestMsgSubmitProposal() {
 					"",
 					"Proposal",
 					"description of proposal",
-					false,
+					v1.ProposalType_PROPOSAL_TYPE_STANDARD,
 				)
 			},
 			expErr:    true,
@@ -81,7 +81,7 @@ func (suite *KeeperTestSuite) TestMsgSubmitProposal() {
 					"",
 					"",
 					"description of proposal",
-					false,
+					v1.ProposalType_PROPOSAL_TYPE_STANDARD,
 				)
 			},
 			expErr:    true,
@@ -96,7 +96,7 @@ func (suite *KeeperTestSuite) TestMsgSubmitProposal() {
 					"",
 					"Proposal",
 					"",
-					false,
+					v1.ProposalType_PROPOSAL_TYPE_STANDARD,
 				)
 			},
 			expErr:    true,
@@ -111,7 +111,7 @@ func (suite *KeeperTestSuite) TestMsgSubmitProposal() {
 					"{\"title\":\"Proposal\", \"description\":\"description of proposal\"}",
 					"Proposal2",
 					"description of proposal",
-					false,
+					v1.ProposalType_PROPOSAL_TYPE_STANDARD,
 				)
 			},
 			expErr:    true,
@@ -126,11 +126,26 @@ func (suite *KeeperTestSuite) TestMsgSubmitProposal() {
 					"{\"title\":\"Proposal\", \"description\":\"description of proposal\"}",
 					"Proposal",
 					"description",
-					false,
+					v1.ProposalType_PROPOSAL_TYPE_STANDARD,
 				)
 			},
 			expErr:    true,
 			expErrMsg: "metadata summary '' must equal proposal summary 'description'",
+		},
+		"title too long": {
+			preRun: func() (*v1.MsgSubmitProposal, error) {
+				return v1.NewMsgSubmitProposal(
+					[]sdk.Msg{bankMsg},
+					initialDeposit,
+					proposer.String(),
+					"Metadata",
+					strings.Repeat("1", 256),
+					"description of proposal",
+					v1.ProposalType_PROPOSAL_TYPE_STANDARD,
+				)
+			},
+			expErr:    true,
+			expErrMsg: "title too long",
 		},
 		"metadata too long": {
 			preRun: func() (*v1.MsgSubmitProposal, error) {
@@ -138,10 +153,10 @@ func (suite *KeeperTestSuite) TestMsgSubmitProposal() {
 					[]sdk.Msg{bankMsg},
 					initialDeposit,
 					proposer.String(),
-					strings.Repeat("1", 300),
+					strings.Repeat("1", 257),
 					"Proposal",
 					"description of proposal",
-					false,
+					v1.ProposalType_PROPOSAL_TYPE_STANDARD,
 				)
 			},
 			expErr:    true,
@@ -155,8 +170,8 @@ func (suite *KeeperTestSuite) TestMsgSubmitProposal() {
 					proposer.String(),
 					"",
 					"Proposal",
-					strings.Repeat("1", 300*40),
-					false,
+					strings.Repeat("1", 10201),
+					v1.ProposalType_PROPOSAL_TYPE_STANDARD,
 				)
 			},
 			expErr:    true,
@@ -171,7 +186,7 @@ func (suite *KeeperTestSuite) TestMsgSubmitProposal() {
 					"",
 					"Proposal",
 					"description of proposal",
-					false,
+					v1.ProposalType_PROPOSAL_TYPE_STANDARD,
 				)
 			},
 			expErr:    true,
@@ -186,7 +201,7 @@ func (suite *KeeperTestSuite) TestMsgSubmitProposal() {
 					"",
 					"Proposal",
 					"description of proposal",
-					false,
+					v1.ProposalType_PROPOSAL_TYPE_STANDARD,
 				)
 			},
 			expErr:    true,
@@ -201,7 +216,7 @@ func (suite *KeeperTestSuite) TestMsgSubmitProposal() {
 					"",
 					"Proposal",
 					"description of proposal",
-					false,
+					v1.ProposalType_PROPOSAL_TYPE_STANDARD,
 				)
 			},
 			expErr:    true,
@@ -216,7 +231,7 @@ func (suite *KeeperTestSuite) TestMsgSubmitProposal() {
 					"",
 					"Proposal",
 					"description of proposal",
-					false,
+					v1.ProposalType_PROPOSAL_TYPE_STANDARD,
 				)
 			},
 			expErr:    true,
@@ -231,7 +246,7 @@ func (suite *KeeperTestSuite) TestMsgSubmitProposal() {
 					"",
 					"Proposal",
 					"description of proposal",
-					false,
+					v1.ProposalType_PROPOSAL_TYPE_STANDARD,
 				)
 			},
 			expErr:    true,
@@ -246,7 +261,7 @@ func (suite *KeeperTestSuite) TestMsgSubmitProposal() {
 					"",
 					"Proposal",
 					"description of proposal",
-					false,
+					v1.ProposalType_PROPOSAL_TYPE_STANDARD,
 				)
 			},
 			expErr: false,
@@ -260,7 +275,7 @@ func (suite *KeeperTestSuite) TestMsgSubmitProposal() {
 					"",
 					"Proposal",
 					"description of proposal",
-					false,
+					v1.ProposalType_PROPOSAL_TYPE_STANDARD,
 				)
 			},
 			expErr: false,
@@ -300,7 +315,7 @@ func (suite *KeeperTestSuite) TestMsgCancelProposal() {
 		coins,
 		proposer.String(),
 		"", "title", "summary",
-		false,
+		v1.ProposalType_PROPOSAL_TYPE_STANDARD,
 	)
 	suite.Require().NoError(err)
 
@@ -322,11 +337,11 @@ func (suite *KeeperTestSuite) TestMsgCancelProposal() {
 			},
 			depositor: proposer,
 			expErr:    true,
-			expErrMsg: "not found",
+			expErrMsg: "proposal 0 doesn't exist",
 		},
 		"valid proposal but invalid proposer": {
 			preRun: func() uint64 {
-				return proposalID
+				return res.ProposalId
 			},
 			depositor: addrs[1],
 			expErr:    true,
@@ -349,7 +364,7 @@ func (suite *KeeperTestSuite) TestMsgCancelProposal() {
 					"",
 					"Proposal",
 					"description of proposal",
-					false,
+					v1.ProposalType_PROPOSAL_TYPE_STANDARD,
 				)
 				suite.Require().NoError(err)
 
@@ -400,7 +415,7 @@ func (suite *KeeperTestSuite) TestMsgVote() {
 		"",
 		"Proposal",
 		"description of proposal",
-		false,
+		v1.ProposalType_PROPOSAL_TYPE_STANDARD,
 	)
 	suite.Require().NoError(err)
 
@@ -421,7 +436,7 @@ func (suite *KeeperTestSuite) TestMsgVote() {
 			preRun: func() uint64 {
 				return proposalID
 			},
-			option:    v1.VoteOption_VOTE_OPTION_YES,
+			option:    v1.VoteOption_VOTE_OPTION_ONE,
 			voter:     sdk.AccAddress{},
 			metadata:  "",
 			expErr:    true,
@@ -437,6 +452,30 @@ func (suite *KeeperTestSuite) TestMsgVote() {
 			expErr:    true,
 			expErrMsg: "invalid vote option",
 		},
+		"optimistic proposal: wrong vote option": {
+			preRun: func() uint64 {
+				msg, err := v1.NewMsgSubmitProposal(
+					[]sdk.Msg{bankMsg},
+					minDeposit,
+					proposer.String(),
+					"",
+					"Proposal",
+					"description of proposal",
+					v1.ProposalType_PROPOSAL_TYPE_OPTIMISTIC,
+				)
+				suite.Require().NoError(err)
+
+				res, err := suite.msgSrvr.SubmitProposal(suite.ctx, msg)
+				suite.Require().NoError(err)
+				suite.Require().NotNil(res.ProposalId)
+				return res.ProposalId
+			},
+			option:    v1.VoteOption_VOTE_OPTION_ONE,
+			voter:     proposer,
+			metadata:  "",
+			expErr:    true,
+			expErrMsg: "optimistic proposals can only be rejected: invalid vote option",
+		},
 		"vote on inactive proposal": {
 			preRun: func() uint64 {
 				msg, err := v1.NewMsgSubmitProposal(
@@ -446,7 +485,7 @@ func (suite *KeeperTestSuite) TestMsgVote() {
 					"",
 					"Proposal",
 					"description of proposal",
-					false,
+					v1.ProposalType_PROPOSAL_TYPE_STANDARD,
 				)
 				suite.Require().NoError(err)
 
@@ -455,7 +494,7 @@ func (suite *KeeperTestSuite) TestMsgVote() {
 				suite.Require().NotNil(res.ProposalId)
 				return res.ProposalId
 			},
-			option:    v1.VoteOption_VOTE_OPTION_YES,
+			option:    v1.VoteOption_VOTE_OPTION_ONE,
 			voter:     proposer,
 			metadata:  "",
 			expErr:    true,
@@ -465,7 +504,7 @@ func (suite *KeeperTestSuite) TestMsgVote() {
 			preRun: func() uint64 {
 				return proposalID
 			},
-			option:    v1.VoteOption_VOTE_OPTION_YES,
+			option:    v1.VoteOption_VOTE_OPTION_ONE,
 			voter:     proposer,
 			metadata:  strings.Repeat("a", 300),
 			expErr:    true,
@@ -475,7 +514,7 @@ func (suite *KeeperTestSuite) TestMsgVote() {
 			preRun: func() uint64 {
 				return proposalID
 			},
-			option:    v1.VoteOption_VOTE_OPTION_YES,
+			option:    v1.VoteOption_VOTE_OPTION_ONE,
 			voter:     sdk.AccAddress(strings.Repeat("a", 300)),
 			metadata:  "",
 			expErr:    true,
@@ -490,7 +529,7 @@ func (suite *KeeperTestSuite) TestMsgVote() {
 					"",
 					"Proposal",
 					"description of proposal",
-					false,
+					v1.ProposalType_PROPOSAL_TYPE_STANDARD,
 				)
 				suite.Require().NoError(err)
 
@@ -499,7 +538,7 @@ func (suite *KeeperTestSuite) TestMsgVote() {
 				suite.Require().NotNil(res.ProposalId)
 				return res.ProposalId
 			},
-			option:   v1.VoteOption_VOTE_OPTION_YES,
+			option:   v1.VoteOption_VOTE_OPTION_ONE,
 			voter:    proposer,
 			metadata: "",
 			expErr:   false,
@@ -543,7 +582,7 @@ func (suite *KeeperTestSuite) TestMsgVoteWeighted() {
 		"",
 		"Proposal",
 		"description of proposal",
-		false,
+		v1.ProposalType_PROPOSAL_TYPE_STANDARD,
 	)
 	suite.Require().NoError(err)
 
@@ -609,7 +648,7 @@ func (suite *KeeperTestSuite) TestMsgVoteWeighted() {
 			voter:     proposer,
 			metadata:  "",
 			expErr:    true,
-			expErrMsg: `option:VOTE_OPTION_YES weight:"0.000000000000000000" : invalid vote option`,
+			expErrMsg: `option:VOTE_OPTION_ONE weight:"0.000000000000000000" : invalid vote option`,
 		},
 		"negative weight": {
 			preRun: func() uint64 {
@@ -621,7 +660,7 @@ func (suite *KeeperTestSuite) TestMsgVoteWeighted() {
 			voter:     proposer,
 			metadata:  "",
 			expErr:    true,
-			expErrMsg: `option:VOTE_OPTION_YES weight:"-1.000000000000000000" : invalid vote option`,
+			expErrMsg: `option:VOTE_OPTION_ONE weight:"-1.000000000000000000" : invalid vote option`,
 		},
 		"empty options": {
 			preRun: func() uint64 {
@@ -642,6 +681,30 @@ func (suite *KeeperTestSuite) TestMsgVoteWeighted() {
 			metadata:  "",
 			expErr:    true,
 			expErrMsg: "invalid vote option",
+		},
+		"optimistic proposal: wrong vote option": {
+			preRun: func() uint64 {
+				msg, err := v1.NewMsgSubmitProposal(
+					[]sdk.Msg{bankMsg},
+					minDeposit,
+					proposer.String(),
+					"",
+					"Proposal",
+					"description of proposal",
+					v1.ProposalType_PROPOSAL_TYPE_OPTIMISTIC,
+				)
+				suite.Require().NoError(err)
+
+				res, err := suite.msgSrvr.SubmitProposal(suite.ctx, msg)
+				suite.Require().NoError(err)
+				suite.Require().NotNil(res.ProposalId)
+				return res.ProposalId
+			},
+			option:    v1.NewNonSplitVoteOption(v1.VoteOption_VOTE_OPTION_ONE), // vote yes
+			voter:     proposer,
+			metadata:  "",
+			expErr:    true,
+			expErrMsg: "optimistic proposals can only be rejected: invalid vote option",
 		},
 		"weight sum < 1": {
 			preRun: func() uint64 {
@@ -664,7 +727,7 @@ func (suite *KeeperTestSuite) TestMsgVoteWeighted() {
 					"",
 					"Proposal",
 					"description of proposal",
-					false,
+					v1.ProposalType_PROPOSAL_TYPE_STANDARD,
 				)
 				suite.Require().NoError(err)
 
@@ -673,7 +736,7 @@ func (suite *KeeperTestSuite) TestMsgVoteWeighted() {
 				suite.Require().NotNil(res.ProposalId)
 				return res.ProposalId
 			},
-			option:    v1.NewNonSplitVoteOption(v1.VoteOption_VOTE_OPTION_YES),
+			option:    v1.NewNonSplitVoteOption(v1.VoteOption_VOTE_OPTION_ONE),
 			voter:     proposer,
 			metadata:  "",
 			expErr:    true,
@@ -683,7 +746,7 @@ func (suite *KeeperTestSuite) TestMsgVoteWeighted() {
 			preRun: func() uint64 {
 				return proposalID
 			},
-			option:    v1.NewNonSplitVoteOption(v1.VoteOption_VOTE_OPTION_YES),
+			option:    v1.NewNonSplitVoteOption(v1.VoteOption_VOTE_OPTION_ONE),
 			voter:     proposer,
 			metadata:  strings.Repeat("a", 300),
 			expErr:    true,
@@ -693,7 +756,7 @@ func (suite *KeeperTestSuite) TestMsgVoteWeighted() {
 			preRun: func() uint64 {
 				return proposalID
 			},
-			option:    v1.NewNonSplitVoteOption(v1.VoteOption_VOTE_OPTION_YES),
+			option:    v1.NewNonSplitVoteOption(v1.VoteOption_VOTE_OPTION_ONE),
 			voter:     sdk.AccAddress(strings.Repeat("a", 300)),
 			metadata:  "",
 			expErr:    true,
@@ -708,7 +771,7 @@ func (suite *KeeperTestSuite) TestMsgVoteWeighted() {
 					"",
 					"Proposal",
 					"description of proposal",
-					false,
+					v1.ProposalType_PROPOSAL_TYPE_STANDARD,
 				)
 				suite.Require().NoError(err)
 
@@ -717,7 +780,7 @@ func (suite *KeeperTestSuite) TestMsgVoteWeighted() {
 				suite.Require().NotNil(res.ProposalId)
 				return res.ProposalId
 			},
-			option:   v1.NewNonSplitVoteOption(v1.VoteOption_VOTE_OPTION_YES),
+			option:   v1.NewNonSplitVoteOption(v1.VoteOption_VOTE_OPTION_ONE),
 			voter:    proposer,
 			metadata: "",
 			expErr:   false,
@@ -731,7 +794,7 @@ func (suite *KeeperTestSuite) TestMsgVoteWeighted() {
 					"",
 					"Proposal",
 					"description of proposal",
-					false,
+					v1.ProposalType_PROPOSAL_TYPE_STANDARD,
 				)
 				suite.Require().NoError(err)
 
@@ -787,7 +850,7 @@ func (suite *KeeperTestSuite) TestMsgDeposit() {
 		"",
 		"Proposal",
 		"description of proposal",
-		false,
+		v1.ProposalType_PROPOSAL_TYPE_STANDARD,
 	)
 	suite.Require().NoError(err)
 
@@ -997,7 +1060,7 @@ func (suite *KeeperTestSuite) TestLegacyMsgVote() {
 		"",
 		"Proposal",
 		"description of proposal",
-		false,
+		v1.ProposalType_PROPOSAL_TYPE_STANDARD,
 	)
 	suite.Require().NoError(err)
 
@@ -1043,7 +1106,7 @@ func (suite *KeeperTestSuite) TestLegacyMsgVote() {
 					"",
 					"Proposal",
 					"description of proposal",
-					false,
+					v1.ProposalType_PROPOSAL_TYPE_STANDARD,
 				)
 				suite.Require().NoError(err)
 
@@ -1077,7 +1140,7 @@ func (suite *KeeperTestSuite) TestLegacyMsgVote() {
 					"",
 					"Proposal",
 					"description of proposal",
-					false,
+					v1.ProposalType_PROPOSAL_TYPE_STANDARD,
 				)
 				suite.Require().NoError(err)
 
@@ -1130,7 +1193,7 @@ func (suite *KeeperTestSuite) TestLegacyVoteWeighted() {
 		"",
 		"Proposal",
 		"description of proposal",
-		false,
+		v1.ProposalType_PROPOSAL_TYPE_STANDARD,
 	)
 	suite.Require().NoError(err)
 
@@ -1214,7 +1277,7 @@ func (suite *KeeperTestSuite) TestLegacyVoteWeighted() {
 			voter:     proposer,
 			metadata:  "",
 			expErr:    true,
-			expErrMsg: `option:VOTE_OPTION_YES weight:"0.000000000000000000" : invalid vote option`,
+			expErrMsg: `option:VOTE_OPTION_ONE weight:"0.000000000000000000" : invalid vote option`,
 		},
 		"negative weight": {
 			preRun: func() uint64 {
@@ -1229,7 +1292,7 @@ func (suite *KeeperTestSuite) TestLegacyVoteWeighted() {
 			voter:     proposer,
 			metadata:  "",
 			expErr:    true,
-			expErrMsg: `option:VOTE_OPTION_YES weight:"-1.000000000000000000" : invalid vote option`,
+			expErrMsg: `option:VOTE_OPTION_ONE weight:"-1.000000000000000000" : invalid vote option`,
 		},
 		"empty options": {
 			preRun: func() uint64 {
@@ -1280,7 +1343,7 @@ func (suite *KeeperTestSuite) TestLegacyVoteWeighted() {
 					"",
 					"Proposal",
 					"description of proposal",
-					false,
+					v1.ProposalType_PROPOSAL_TYPE_STANDARD,
 				)
 				suite.Require().NoError(err)
 
@@ -1324,7 +1387,7 @@ func (suite *KeeperTestSuite) TestLegacyVoteWeighted() {
 					"",
 					"Proposal",
 					"description of proposal",
-					false,
+					v1.ProposalType_PROPOSAL_TYPE_STANDARD,
 				)
 				suite.Require().NoError(err)
 
@@ -1381,7 +1444,7 @@ func (suite *KeeperTestSuite) TestLegacyMsgDeposit() {
 		"",
 		"Proposal",
 		"description of proposal",
-		false,
+		v1.ProposalType_PROPOSAL_TYPE_STANDARD,
 	)
 	suite.Require().NoError(err)
 
@@ -1766,7 +1829,7 @@ func (suite *KeeperTestSuite) TestSubmitProposal_InitialDeposit() {
 			err := govKeeper.Params.Set(ctx, params)
 			suite.Require().NoError(err)
 
-			msg, err := v1.NewMsgSubmitProposal(TestProposal, tc.initialDeposit, address.String(), "test", "Proposal", "description of proposal", false)
+			msg, err := v1.NewMsgSubmitProposal(TestProposal, tc.initialDeposit, address.String(), "test", "Proposal", "description of proposal", v1.ProposalType_PROPOSAL_TYPE_STANDARD)
 			suite.Require().NoError(err)
 
 			// System under test
