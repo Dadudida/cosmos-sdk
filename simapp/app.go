@@ -22,9 +22,11 @@ import (
 	storetypes "cosmossdk.io/store/types"
 	"cosmossdk.io/x/accounts"
 	"cosmossdk.io/x/accounts/accountstd"
+	"cosmossdk.io/x/accounts/testing/account_abstraction"
 	"cosmossdk.io/x/accounts/testing/counter"
 	"cosmossdk.io/x/auth"
 	"cosmossdk.io/x/auth/ante"
+	"cosmossdk.io/x/auth/ante/unorderedtx"
 	authcodec "cosmossdk.io/x/auth/codec"
 	authkeeper "cosmossdk.io/x/auth/keeper"
 	"cosmossdk.io/x/auth/posthandler"
@@ -168,6 +170,8 @@ type SimApp struct {
 	ModuleManager      *module.Manager
 	BasicModuleManager module.BasicManager
 
+	UnorderedTxManager *unorderedtx.Manager
+
 	// simulation manager
 	sm *module.SimulationManager
 
@@ -284,11 +288,15 @@ func NewSimApp(
 	accountsKeeper, err := accounts.NewKeeper(
 		runtime.NewKVStoreService(keys[accounts.StoreKey]),
 		runtime.EventService{},
+		runtime.BranchService{},
 		app.AuthKeeper.AddressCodec(),
-		appCodec.InterfaceRegistry().SigningContext(),
+		appCodec,
 		app.MsgServiceRouter(),
 		app.GRPCQueryRouter(),
+		appCodec.InterfaceRegistry(),
 		accountstd.AddAccount("counter", counter.NewAccount),
+		accountstd.AddAccount("aa_minimal", account_abstraction.NewMinimalAbstractedAccount),
+		accountstd.AddAccount("aa_full", account_abstraction.NewFullAbstractedAccount),
 	)
 	if err != nil {
 		panic(err)
@@ -348,8 +356,11 @@ func NewSimApp(
 
 	groupConfig := group.DefaultConfig()
 	/*
-		Example of setting group params:
-		groupConfig.MaxMetadataLen = 1000
+		Example of group params:
+		config.MaxExecutionPeriod = "1209600s" 	// example execution period in seconds
+		config.MaxMetadataLen = 1000 			// example metadata length in bytes
+		config.MaxProposalTitleLen = 255 		// example max title length in characters
+		config.MaxProposalSummaryLen = 10200 	// example max summary length in characters
 	*/
 	app.GroupKeeper = groupkeeper.NewKeeper(keys[group.StoreKey], appCodec, app.MsgServiceRouter(), app.AuthKeeper, groupConfig)
 
@@ -511,6 +522,25 @@ func NewSimApp(
 	}
 	app.sm = module.NewSimulationManagerFromAppModules(app.ModuleManager.Modules, overrideModules)
 
+	// create, start, and load the unordered tx manager
+	utxDataDir := filepath.Join(cast.ToString(appOpts.Get(flags.FlagHome)), "data")
+	app.UnorderedTxManager = unorderedtx.NewManager(utxDataDir)
+	app.UnorderedTxManager.Start()
+
+	if err := app.UnorderedTxManager.OnInit(); err != nil {
+		panic(fmt.Errorf("failed to initialize unordered tx manager: %w", err))
+	}
+
+	// register custom snapshot extensions (if any)
+	if manager := app.SnapshotManager(); manager != nil {
+		err := manager.RegisterExtensions(
+			unorderedtx.NewSnapshotter(app.UnorderedTxManager),
+		)
+		if err != nil {
+			panic(fmt.Errorf("failed to register snapshot extension: %s", err))
+		}
+	}
+
 	app.sm.RegisterStoreDecoders()
 
 	// initialize stores
@@ -571,6 +601,7 @@ func (app *SimApp) setAnteHandler(txConfig client.TxConfig) {
 				SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
 			},
 			&app.CircuitKeeper,
+			app.UnorderedTxManager,
 		},
 	)
 	if err != nil {
@@ -590,6 +621,12 @@ func (app *SimApp) setPostHandler() {
 	}
 
 	app.SetPostHandler(postHandler)
+}
+
+// Close implements the Application interface and closes all necessary application
+// resources.
+func (app *SimApp) Close() error {
+	return app.UnorderedTxManager.Close()
 }
 
 // Name returns the name of the App
