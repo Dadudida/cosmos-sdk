@@ -2,26 +2,18 @@ package store
 
 import (
 	"fmt"
+	"sort"
 	"time"
-
-	"cosmossdk.io/store/v2/internal/maps"
 )
 
 type (
-	// CommitHeader defines the interface for a block header that can be provided
-	// to a MultiStore upon Commit. This should be optional and used to facilitate
-	// time-based queries only.
-	CommitHeader interface {
-		GetTime() time.Time
-		GetHeight() uint64
-	}
-
 	// CommitInfo defines commit information used by the multi-store when committing
 	// a version/height.
 	CommitInfo struct {
 		Version    uint64
 		StoreInfos []StoreInfo
 		Timestamp  time.Time
+		CommitHash []byte
 	}
 
 	// StoreInfo defines store-specific commit information. It contains a reference
@@ -45,25 +37,44 @@ func (si StoreInfo) GetHash() []byte {
 
 // Hash returns the root hash of all committed stores represented by CommitInfo,
 // sorted by store name/key.
-func (ci CommitInfo) Hash() []byte {
+func (ci *CommitInfo) Hash() []byte {
 	if len(ci.StoreInfos) == 0 {
 		return nil
 	}
 
-	rootHash, _, _ := maps.ProofsFromMap(ci.toMap())
+	if len(ci.CommitHash) != 0 {
+		return ci.CommitHash
+	}
+
+	rootHash, _, _ := ci.GetStoreProof("")
 	return rootHash
 }
 
-func (ci CommitInfo) toMap() map[string][]byte {
-	m := make(map[string][]byte, len(ci.StoreInfos))
-	for _, storeInfo := range ci.StoreInfos {
-		m[storeInfo.Name] = storeInfo.GetHash()
+func (ci *CommitInfo) GetStoreProof(storeKey string) ([]byte, *CommitmentOp, error) {
+	sort.Slice(ci.StoreInfos, func(i, j int) bool {
+		return ci.StoreInfos[i].Name < ci.StoreInfos[j].Name
+	})
+
+	index := 0
+	leaves := make([][]byte, len(ci.StoreInfos))
+	for i, si := range ci.StoreInfos {
+		var err error
+		leaves[i], err = LeafHash([]byte(si.Name), si.GetHash())
+		if err != nil {
+			return nil, nil, err
+		}
+		if si.Name == storeKey {
+			index = i
+		}
 	}
 
-	return m
+	rootHash, inners := ProofFromByteSlices(leaves, index)
+	commitmentOp := ConvertCommitmentOp(inners, []byte(storeKey), ci.StoreInfos[index].GetHash())
+
+	return rootHash, &commitmentOp, nil
 }
 
-func (ci CommitInfo) CommitID() CommitID {
+func (ci *CommitInfo) CommitID() CommitID {
 	return CommitID{
 		Version: ci.Version,
 		Hash:    ci.Hash(),
@@ -79,4 +90,8 @@ func (m *CommitInfo) GetVersion() uint64 {
 
 func (cid CommitID) String() string {
 	return fmt.Sprintf("CommitID{%v:%X}", cid.Hash, cid.Version)
+}
+
+func (cid CommitID) IsZero() bool {
+	return cid.Version == 0 && len(cid.Hash) == 0
 }
