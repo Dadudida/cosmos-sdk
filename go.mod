@@ -7,7 +7,7 @@ require (
 	cosmossdk.io/collections v0.4.0
 	cosmossdk.io/core v0.12.1-0.20231114100755-569e3ff6a0d7
 	cosmossdk.io/depinject v1.0.0-alpha.4
-	cosmossdk.io/errors v1.0.0
+	cosmossdk.io/errors v1.0.1
 	cosmossdk.io/log v1.2.1
 	cosmossdk.io/math v1.2.0
 	cosmossdk.io/store v1.0.1
@@ -95,7 +95,7 @@ require (
 	github.com/hashicorp/golang-lru v1.0.2 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hashicorp/yamux v0.1.1 // indirect
-	github.com/hdevalence/ed25519consensus v0.2.0 // indirect
+	github.com/hdevalence/ed25519consensus v0.1.0 // indirect
 	github.com/huandu/skiplist v1.2.0 // indirect
 	github.com/iancoleman/strcase v0.3.0 // indirect
 	github.com/improbable-eng/grpc-web v0.15.0 // indirect
