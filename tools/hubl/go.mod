@@ -6,7 +6,7 @@ require (
 	cosmossdk.io/api v0.7.2
 	cosmossdk.io/client/v2 v2.0.0-beta.1
 	cosmossdk.io/core v0.12.0
-	cosmossdk.io/errors v1.0.0
+	cosmossdk.io/errors v1.0.1
 	github.com/cockroachdb/errors v1.11.1
 	github.com/cosmos/cosmos-sdk v0.50.1
 	github.com/manifoldco/promptui v0.9.0
