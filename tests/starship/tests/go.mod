@@ -34,7 +34,7 @@ replace (
 )
 
 require (
-	cosmossdk.io/log v1.2.1
+	cosmossdk.io/log v1.3.1
 	cosmossdk.io/math v1.2.0
 	cosmossdk.io/simapp v0.0.0-00010101000000-000000000000
 	cosmossdk.io/x/auth v0.0.0-00010101000000-000000000000
@@ -42,7 +42,7 @@ require (
 	github.com/cosmos/cosmos-db v1.0.0
 	github.com/cosmos/cosmos-sdk v0.51.0
 	github.com/stretchr/testify v1.8.4
-	google.golang.org/grpc v1.60.1
+	google.golang.org/grpc v1.61.1
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -57,8 +57,8 @@ require (
 	cosmossdk.io/collections v0.4.0 // indirect
 	cosmossdk.io/core v0.12.1-0.20231114100755-569e3ff6a0d7 // indirect
 	cosmossdk.io/depinject v1.0.0-alpha.4 // indirect
-	cosmossdk.io/errors v1.0.0 // indirect
-	cosmossdk.io/store v1.0.1 // indirect
+	cosmossdk.io/errors v1.0.1 // indirect
+	cosmossdk.io/store v1.0.2 // indirect
 	cosmossdk.io/x/accounts v0.0.0-20231013072015-ec9bcc41ef9c // indirect
 	cosmossdk.io/x/authz v0.0.0-00010101000000-000000000000 // indirect
 	cosmossdk.io/x/circuit v0.0.0-20230613133644-0a778132a60f // indirect
@@ -79,7 +79,7 @@ require (
 	github.com/99designs/keyring v1.2.2 // indirect
 	github.com/DataDog/datadog-go v4.8.3+incompatible // indirect
 	github.com/DataDog/zstd v1.5.5 // indirect
-	github.com/Microsoft/go-winio v0.6.0 // indirect
+	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/aws/aws-sdk-go v1.45.25 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d // indirect
@@ -95,8 +95,8 @@ require (
 	github.com/cockroachdb/logtags v0.0.0-20230118201751-21c54148d20b // indirect
 	github.com/cockroachdb/pebble v1.0.0 // indirect
 	github.com/cockroachdb/redact v1.1.5 // indirect
-	github.com/cometbft/cometbft v0.38.2 // indirect
-	github.com/cometbft/cometbft-db v0.8.0 // indirect
+	github.com/cometbft/cometbft v0.38.5 // indirect
+	github.com/cometbft/cometbft-db v0.9.1 // indirect
 	github.com/cosmos/btcutil v1.0.5 // indirect
 	github.com/cosmos/cosmos-proto v1.0.0-beta.3 // indirect
 	github.com/cosmos/go-bip39 v1.0.0 // indirect
@@ -125,7 +125,7 @@ require (
 	github.com/godbus/dbus v0.0.0-20190726142602-4481cbc300e2 // indirect
 	github.com/gogo/googleapis v1.4.1 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/golang/glog v1.1.2 // indirect
+	github.com/golang/glog v1.2.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
@@ -154,7 +154,7 @@ require (
 	github.com/hashicorp/golang-lru v1.0.2 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hashicorp/yamux v0.1.1 // indirect
-	github.com/hdevalence/ed25519consensus v0.1.0 // indirect
+	github.com/hdevalence/ed25519consensus v0.2.0 // indirect
 	github.com/huandu/skiplist v1.2.0 // indirect
 	github.com/iancoleman/strcase v0.3.0 // indirect
 	github.com/improbable-eng/grpc-web v0.15.0 // indirect
@@ -181,7 +181,7 @@ require (
 	github.com/oklog/run v1.1.0 // indirect
 	github.com/onsi/gomega v1.27.4 // indirect
 	github.com/opencontainers/image-spec v1.1.0-rc2.0.20221005185240-3a7f492d3f1b // indirect
-	github.com/opencontainers/runc v1.1.5 // indirect
+	github.com/opencontainers/runc v1.1.12 // indirect
 	github.com/pelletier/go-toml/v2 v2.1.1 // indirect
 	github.com/petermattis/goid v0.0.0-20231126143041-f558c26febf5 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
@@ -193,7 +193,7 @@ require (
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
 	github.com/rogpeppe/go-internal v1.12.0 // indirect
 	github.com/rs/cors v1.8.3 // indirect
-	github.com/rs/zerolog v1.31.0 // indirect
+	github.com/rs/zerolog v1.32.0 // indirect
 	github.com/sagikazarmark/locafero v0.4.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
 	github.com/sasha-s/go-deadlock v0.3.1 // indirect
@@ -212,17 +212,17 @@ require (
 	github.com/zondax/ledger-go v0.14.3 // indirect
 	gitlab.com/yawning/secp256k1-voi v0.0.0-20230925100816-f2616030848b // indirect
 	gitlab.com/yawning/tuplehash v0.0.0-20230713102510-df83abbf9a02 // indirect
-	go.etcd.io/bbolt v1.3.7 // indirect
+	go.etcd.io/bbolt v1.3.8 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/crypto v0.17.0 // indirect
+	golang.org/x/crypto v0.18.0 // indirect
 	golang.org/x/exp v0.0.0-20231226003508-02704c960a9b // indirect
 	golang.org/x/mod v0.14.0 // indirect
-	golang.org/x/net v0.19.0 // indirect
+	golang.org/x/net v0.20.0 // indirect
 	golang.org/x/oauth2 v0.15.0 // indirect
 	golang.org/x/sync v0.6.0 // indirect
-	golang.org/x/sys v0.15.0 // indirect
-	golang.org/x/term v0.15.0 // indirect
+	golang.org/x/sys v0.16.0 // indirect
+	golang.org/x/term v0.16.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
 	golang.org/x/tools v0.16.0 // indirect
