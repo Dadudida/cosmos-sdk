@@ -7,11 +7,11 @@ require (
 	cosmossdk.io/collections v0.4.0
 	cosmossdk.io/core v0.12.1-0.20231114100755-569e3ff6a0d7
 	cosmossdk.io/depinject v1.0.0-alpha.4
-	cosmossdk.io/errors v1.0.0
-	cosmossdk.io/log v1.3.0
+	cosmossdk.io/errors v1.0.1
+	cosmossdk.io/log v1.3.1
 	cosmossdk.io/math v1.2.0
 	cosmossdk.io/simapp v0.0.0-20230309163709-87da587416ba
-	cosmossdk.io/store v1.0.1
+	cosmossdk.io/store v1.0.2
 	cosmossdk.io/x/evidence v0.0.0-20230613133644-0a778132a60f
 	cosmossdk.io/x/feegrant v0.0.0-20230613133644-0a778132a60f
 	cosmossdk.io/x/nft v0.0.0-20230613133644-0a778132a60f
@@ -27,7 +27,7 @@ require (
 	github.com/golang/mock v1.6.0
 	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/testify v1.8.4
-	google.golang.org/grpc v1.61.0
+	google.golang.org/grpc v1.61.1
 	google.golang.org/protobuf v1.32.0
 	gotest.tools/v3 v3.5.1
 	pgregory.net/rapid v1.1.0
@@ -45,7 +45,7 @@ require (
 	cosmossdk.io/x/slashing v0.0.0-00010101000000-000000000000
 	cosmossdk.io/x/staking v0.0.0-00010101000000-000000000000
 	github.com/google/go-cmp v0.6.0
-	github.com/jhump/protoreflect v1.15.4
+	github.com/jhump/protoreflect v1.15.6
 )
 
 require (
@@ -68,7 +68,7 @@ require (
 	github.com/bgentry/speakeasy v0.1.1-0.20220910012023-760eaf8b6816 // indirect
 	github.com/bits-and-blooms/bitset v1.10.0 // indirect
 	github.com/btcsuite/btcd/btcec/v2 v2.3.2 // indirect
-	github.com/bufbuild/protocompile v0.7.1 // indirect
+	github.com/bufbuild/protocompile v0.8.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.1.3 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
@@ -78,7 +78,7 @@ require (
 	github.com/cockroachdb/logtags v0.0.0-20230118201751-21c54148d20b // indirect
 	github.com/cockroachdb/pebble v1.0.0 // indirect
 	github.com/cockroachdb/redact v1.1.5 // indirect
-	github.com/cometbft/cometbft-db v0.8.0 // indirect
+	github.com/cometbft/cometbft-db v0.9.1 // indirect
 	github.com/cosmos/btcutil v1.0.5 // indirect
 	github.com/cosmos/go-bip39 v1.0.0 // indirect
 	github.com/cosmos/gogogateway v1.2.0 // indirect
@@ -105,7 +105,7 @@ require (
 	github.com/godbus/dbus v0.0.0-20190726142602-4481cbc300e2 // indirect
 	github.com/gogo/googleapis v1.4.1 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/golang/glog v1.1.2 // indirect
+	github.com/golang/glog v1.2.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
@@ -132,7 +132,7 @@ require (
 	github.com/hashicorp/golang-lru v1.0.2 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hashicorp/yamux v0.1.1 // indirect
-	github.com/hdevalence/ed25519consensus v0.1.0 // indirect
+	github.com/hdevalence/ed25519consensus v0.2.0 // indirect
 	github.com/huandu/skiplist v1.2.0 // indirect
 	github.com/iancoleman/strcase v0.3.0 // indirect
 	github.com/improbable-eng/grpc-web v0.15.0 // indirect
@@ -168,7 +168,7 @@ require (
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
 	github.com/rogpeppe/go-internal v1.12.0 // indirect
 	github.com/rs/cors v1.8.3 // indirect
-	github.com/rs/zerolog v1.31.0 // indirect
+	github.com/rs/zerolog v1.32.0 // indirect
 	github.com/sagikazarmark/locafero v0.4.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
 	github.com/sasha-s/go-deadlock v0.3.1 // indirect
@@ -186,7 +186,7 @@ require (
 	github.com/zondax/ledger-go v0.14.3 // indirect
 	gitlab.com/yawning/secp256k1-voi v0.0.0-20230925100816-f2616030848b // indirect
 	gitlab.com/yawning/tuplehash v0.0.0-20230713102510-df83abbf9a02 // indirect
-	go.etcd.io/bbolt v1.3.7 // indirect
+	go.etcd.io/bbolt v1.3.8 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.18.0 // indirect
