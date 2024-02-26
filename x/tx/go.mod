@@ -3,11 +3,11 @@ module cosmossdk.io/x/tx
 go 1.21
 
 require (
-	cosmossdk.io/api v0.7.2
+	cosmossdk.io/api v0.7.3
 	cosmossdk.io/core v0.12.0
 	cosmossdk.io/errors v1.0.0
 	cosmossdk.io/math v1.2.0
-	github.com/cosmos/cosmos-proto v1.0.0-beta.3
+	github.com/cosmos/cosmos-proto v1.0.0-beta.4
 	github.com/cosmos/gogoproto v1.4.11
 	github.com/google/go-cmp v0.6.0
 	github.com/google/gofuzz v1.2.0
